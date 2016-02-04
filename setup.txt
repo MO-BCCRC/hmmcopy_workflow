@@ -1,0 +1,8 @@
+#section	key	value
+__GENERAL__	python	path to python
+__GENERAL__	R	path to R
+__SHARED__	gene_sets_gtf	gtf file for pygenes annotation
+__SHARED__	map	reference mappability wig file
+__SHARED__	gc	reference gc wig file
+__SHARED__	ld_library_path	ld_library_path for python
+__SHARED__	r_libs	path to R library(ies)

@@ -1,0 +1,159 @@
+__PIPELINE_INFO__:
+    name: hmmcopy
+    version: 1.4
+    tag: 'cycle007'
+    author: Diljot Grewal <dgrewal@bccrc.ca>
+    data_type: hmmcopy
+    input_type: bam file
+    output_type: 'plots, hmmcopy'
+    host_cluster: null
+    date_created: Jan 20 2015
+    date_last_updated: Jan 28 2015 by Diljot Grewal
+    factory_version: '1.12.0'
+__GENERAL__:
+    python: 'path to python'
+    R: 'path to R'
+__SHARED__:
+    r_libs : null
+    ld_library_path: 'ld_library_path for python'
+    gene_sets_gtf: 'gtf file for pygenes annotation'
+    map: 'reference mappability wig file'
+    gc: 'reference gc wig file'
+__SAMPLES__:
+    <sample-id>:
+        bam: 'path to the input bam file'
+__TASK_1__:
+    reserved:
+        # do not change this section.
+        component_name: 'run_readcounter'
+        component_version: '1.1.3'
+        seed_version: '1.0.0'
+    run:
+        # NOTE: component cannot run in parallel mode.
+        use_cluster: True
+        memory: '1G'
+        forced_dependencies: []
+        add_breakpoint: False
+        env_vars:
+            LD_LIBRARY_PATH: ('__SHARED__', 'ld_library_path')
+        boilerplate:
+    component:
+        input_files:
+            bam: ('__SAMPLES__','bam')
+        output_files:
+            out: 'infile.wig'
+        parameters:
+            q: '0'
+            w: '1000'
+            chromosomes: null
+            run_component: True
+__TASK_2__:
+    reserved:
+        # do not change this section.
+        component_name: 'calc_correctreads_wig'
+        component_version: '1.1.3'
+        seed_version: '0.1.1'
+    run:
+        # NOTE: component cannot run in parallel mode.
+        use_cluster: True
+        memory: '5G'
+        forced_dependencies: []
+        add_breakpoint: False
+        env_vars:
+            R_LIBS: ('__SHARED__', 'r_libs')
+        boilerplate:
+    component:
+        input_files:
+            map: ('__SHARED__','map')
+            tumwig: ('__TASK_1__','out')
+            gc: ('__SHARED__','gc')
+            normwig: null
+        output_files:
+            outfile: 'infile_copy.txt'
+            outobj: 'infile_copy.obj'
+        parameters:
+            hmmcopy: True
+            mapcutoff: 0.85
+            run_component: True
+__TASK_3__:
+    reserved:
+        # do not change this section.
+        component_name: 'run_hmmcopy'
+        component_version: '1.0.1'
+        seed_version: '1.0.1'
+    run:
+        # NOTE: component cannot run in parallel mode.
+        use_cluster: True
+        memory: '5G'
+        forced_dependencies: []
+        add_breakpoint: False
+        env_vars:
+            R_LIBS: ('__SHARED__', 'r_libs')
+        boilerplate:
+    component:
+        input_files:
+            normal_copy: null
+            normal_table: null
+            tumour_copy: ('__TASK_2__','outobj')
+            tumour_table: ('__TASK_2__', 'outfile')
+        output_files:
+            obj_file: 'hmmcopy_res.obj'
+            segments: 'hmmcopy_segments.txt'
+            normal_table_out: null
+            tumour_table_out: 'results/${sample_id}_tumour_correctreads_with_state.txt'
+        parameters:
+            mode: 'single'
+            sample_id: $sample_id
+__TASK_4__:
+    reserved:
+        # do not change this section.
+        component_name: 'plot_hmmcopy'
+        component_version: '1.0.1'
+        seed_version: '1.0.1'
+    run:
+        # NOTE: component cannot run in parallel mode.
+        use_cluster: True
+        memory: '5G'
+        forced_dependencies: []
+        add_breakpoint: False
+        env_vars:
+            R_LIBS: ('__SHARED__', 'r_libs')
+        boilerplate:
+    component:
+        input_files:
+            tumour_copy: ('__TASK_2__','outobj')
+            hmmcopy_res: ('__TASK_3__','obj_file')
+        output_files:
+            correction_plots_dir: 'results/plots/${sample_id}_correction'
+            bias_plots: 'results/plots/${sample_id}_bias.pdf'
+            hmmcopy_plots_dir: 'results/plots/${sample_id}_hmmcopy/'
+        parameters:
+__TASK_5__:
+    reserved:
+        # do not change this section
+        component_name: 'annot_pygenes'
+        component_version: '1.1.5'
+        seed_version: '1.0.2'
+    run:
+        # NOTE: component cannot run in parallel mode.
+        use_cluster: True
+        memory: '5G'
+        forced_dependencies: []
+        add_breakpoint: False
+        env_vars:
+            LD_LIBRARY_PATH: ('__SHARED__', 'ld_library_path')
+        boilerplate: null
+        parallel_run: False
+        parallel_params: []
+        interval_file: null
+    component:
+        input_files:
+            gene_sets_gtf: ('__SHARED__', 'gene_sets_gtf')
+            gene_sets_gtf_bin: null
+            infile: ('__TASK_3__', 'segments')
+        output_files:
+            outfile: 'results/${sample_id}_hmmcopy.seg.pygenes'
+        parameters:
+            is_contained: null
+            save_gtf_as_bin: null
+            demix: False

@@ -1,0 +1,2 @@
+#sample_id	bam
+<some_id>	<path to the input bam file>
