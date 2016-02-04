@@ -9,7 +9,7 @@ __PIPELINE_INFO__:
     host_cluster: null
     date_created: Jan 20 2015
     date_last_updated: Jan 28 2015 by Diljot Grewal
-    factory_version: '1.12.0'
+    kronos_version: '2.0.4'
 __GENERAL__:
     python: 'path to python'
     R: 'path to R'
