@@ -20,8 +20,8 @@ __SHARED__:
     map: 'reference mappability wig file'
     gc: 'reference gc wig file'
 __SAMPLES__:
-    <sample-id>:
-        bam: 'path to the input bam file'
+#    <sample-id>:
+#        bam: 'path to the input bam file'
 __TASK_1__:
     reserved:
         # do not change this section.
